@@ -1,2 +1,10 @@
 # budgetTracker
-Sends texts to keep you on top of your budget.
+Send texts to keep you on top of your budget.
+
+Integrates mintapi, Google Sheets, and Twilio to create a very simple budgeting tool that performs the one task you need: a way to alert you of how much you've spent today and how much you can spend for the rest of the month.
+
+Set this tool up to specify how often it runs, and `init()` will construct a text message based off what your expected spending habits should be and what they actually are, and sends your number a text message with just the facts.
+
+Check out the awesome open-source Mintapi here: https://github.com/mrooney/mintapi
+
+This is a work in progress. More functionality (hopefully) to come.
