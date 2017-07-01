@@ -22,7 +22,7 @@ def getDayTransactions(mint, date, include_income=False, depositor=depositor):
 		amount = float(transaction['amount'].strip(u'$').replace(",", ""))
 		is_transfer = transaction['isTransfer']
 		if not is_transfer:
-			# Check if a Slack paycheck has come in, add to income
+			# Check if a paycheck has come in, add to income
 			is_deposit = re.search(depositor, merchant)
 			if is_deposit and include_income:
 				ret['income'] += amount
