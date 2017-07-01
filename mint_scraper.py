@@ -1,5 +1,6 @@
 import mintapi, datetime, re
-from secrets import mint_username, mint_password, mint_ius_session, mint_thx_guid
+from secrets import mint_username, mint_password, mint_ius_session, mint_thx_guid, pn_to, pn_from
+from secrets import depositor, sheet_title
 import mint_google, mint_twilio
 
 IUS_SESSION, THX_GUID = mint_ius_session, mint_thx_guid
@@ -12,7 +13,7 @@ def getMint(ius_session, thx_guid, username, password):
 # Get total transactions (including pending) for given date.
 # Date must be of form "mm/dd/yy"
 # Returns {'expenses':expenses}, or {'expenses':expenses, 'income':income} if include_income == True
-def getDayTransactions(mint, date, include_income=False, depositor="Slack"):
+def getDayTransactions(mint, date, include_income=False, depositor=depositor):
 	date_transactions = mint.get_transactions_json(start_date = date)
 	ret = {'expenses':0}
 	if include_income: ret['income'] = 0
@@ -33,7 +34,7 @@ def getDayTransactions(mint, date, include_income=False, depositor="Slack"):
 	return ret
 
 def constructText(curr_day_exp, date):
-	money_data = mint_google.getMoneyData(curr_day_exp, "Summer Finances")
+	money_data = mint_google.getMoneyData(curr_day_exp, sheet_title)
 	cum_exp, budget_left, expected_cum = money_data['cum_exp'], money_data['budget_left'], \
 										 money_data['expected_cum']
 	ret_string = "{}: You spent ${} today.\n".format(date, curr_day_exp)
@@ -61,9 +62,9 @@ def init():
 
 	text_msg = constructText(curr_day_exp, date)
 
-	ret = mint_twilio.sendText(text_msg)
+	ret = mint_twilio.sendText(pn_to, pn_from, text_msg)
 	if not ret:
-		mint_twilio.sendText("Your script broke. Fix it!")
+		mint_twilio.sendText(pn_to, pn_from, "Your script broke. Fix it!")
 		return False
 	return True
 
