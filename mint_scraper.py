@@ -19,6 +19,7 @@ def getDayTransactions(mint, date, include_income=False, depositor=depositor):
 	if include_income: ret['income'] = 0
 	for transaction in date_transactions:
 		merchant = transaction['merchant']
+		if re.search('Postmates Temp Auth', merchant):	continue
 		amount = float(transaction['amount'].strip(u'$').replace(",", ""))
 		is_transfer = transaction['isTransfer']
 		if not is_transfer:
@@ -52,8 +53,9 @@ def constructText(curr_day_exp, date):
 def init():
 	try:
 		mint = getMint(IUS_SESSION, THX_GUID, USERNAME, PASSWORD)
-	except error as e:
+	except Exception as e:
 		print "ERROR:", e
+		return False
 	# Get current date in proper format: mm/dd/yy
 	date = _formatDate()
 
