@@ -12,5 +12,7 @@ To install necessary dependencies: `pip install -r requirements.txt`
 This is a work in progress. More functionality (hopefully) to come.
 
 **Tips**
+
 To find cookies on chrome, go to chrome://settings/cookies
+
 For `ius_session`, find under accounts.intuit.com; for `thx_guid`, find under pf.intuit.com.
