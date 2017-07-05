@@ -6,11 +6,13 @@ Integrates Mint, Google Sheets, and Twilio to create a very simple budgeting too
 Set this tool up to specify how often it runs, and `init()` will construct a text message based off what your expected spending habits should be and what they actually are, and sends your number a text message with just the facts.
 
 Check out the awesome open-source Mintapi here: https://github.com/mrooney/mintapi
+
 And the just as awesome open-source gspread here: https://github.com/burnash/gspread
+
 To install necessary dependencies: `pip install -r requirements.txt`
 
 This is a work in progress. More functionality (hopefully) to come.
 
 **Tips**
-To find cookies on chrome, go to chrome://settings/cookies
-For `ius_session`, find under accounts.intuit.com; for `thx_guid`, find under pf.intuit.com.
+
+* To find cookies on chrome, go to chrome://settings/cookies. For `ius_session`, find under accounts.intuit.com; for `thx_guid`, find under pf.intuit.com.
