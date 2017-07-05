@@ -1,5 +1,5 @@
 import gspread, datetime
-from oauth2client.service_account import 
+from oauth2client.service_account import ServiceAccountCredentials
 from secrets import KEYFILE_NAME
 
 CUM_EXP_CELL = 'D2'
@@ -16,7 +16,7 @@ def _validateAndOpen(wks_name):
 #
 # Takes in a float, EXP_TODAY_VAL of the total amount of money spent today.
 # Returns {'cum_exp':cum_exp, 'budget_left':budget_left, 'expected_cum':expected_cum}
-def getMoneyData(exp_today_val, wks_name):
+def getMoneyData(exp_today_val, wks_name, date):
 	finance_wks = _validateAndOpen(wks_name)
 
 	now = datetime.datetime.now()
@@ -26,8 +26,7 @@ def getMoneyData(exp_today_val, wks_name):
 	month_wks = finance_wks.worksheet(curr_month)
 
 	# get row for current day expenses
-	curr_date = now.strftime("%m/%d/%y")
-	date_cell = month_wks.find(curr_date)
+	date_cell = month_wks.find(date)
 	
 	# get expected cumulative expenses for today
 	expected_cum_row, expected_cum_col = date_cell.row, date_cell.col + 2

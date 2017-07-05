@@ -15,7 +15,7 @@ def getMint(ius_session, thx_guid, username, password):
 # Returns {'expenses':expenses}, or {'expenses':expenses, 'income':income} if include_income == True
 def getDayTransactions(mint, date, include_income=False, depositor=depositor):
 	date_transactions = mint.get_transactions_json(start_date = date)
-	ret = {'expenses':0}
+	ret = {'expenses':0, 'all_exp':[]}
 	if include_income: ret['income'] = 0
 	for transaction in date_transactions:
 		merchant = transaction['merchant']
@@ -28,14 +28,19 @@ def getDayTransactions(mint, date, include_income=False, depositor=depositor):
 			if is_deposit and include_income:
 				ret['income'] += amount
 			elif not is_deposit:
+				# print merchant, amount
 				ret['expenses'] += amount
+				ret['all_exp'] += [merchant + ':' + str(amount)]
 		# counts as transfers but are still expenses
 		elif merchant == 'Inst Xfer' or merchant == 'Venmo':
+			# print merchant, amount
 			ret['expenses'] += amount
+			ret['all_exp'] += [merchant + ':' + str(amount)]
 	return ret
 
-def constructText(curr_day_exp, date):
-	money_data = mint_google.getMoneyData(curr_day_exp, sheet_title)
+
+def constructText(curr_day_exp, date, all_exp):
+	money_data = mint_google.getMoneyData(curr_day_exp, sheet_title, date)
 	cum_exp, budget_left, expected_cum = money_data['cum_exp'], money_data['budget_left'], \
 										 money_data['expected_cum']
 	ret_string = "{}: You spent ${} today.\n".format(date, curr_day_exp)
@@ -46,7 +51,7 @@ def constructText(curr_day_exp, date):
 		ret_string += "You gotta slow down. Budget left: ${}.".format(budget_left)
 	else:
 		ret_string += "Budget left: ${}.".format(budget_left)
-
+	ret_string += "\n" + str(all_exp)
 	return ret_string
 
 
@@ -61,8 +66,9 @@ def init():
 
 	curr_day_transactions = getDayTransactions(mint, date)
 	curr_day_exp = curr_day_transactions['expenses']
+	all_exp = curr_day_transactions['all_exp']
 
-	text_msg = constructText(curr_day_exp, date)
+	text_msg = constructText(curr_day_exp, date, all_exp)
 
 	ret = mint_twilio.sendText(pn_to, pn_from, text_msg)
 	if not ret:
@@ -70,9 +76,28 @@ def init():
 		return False
 	return True
 
+def init_test():
+	try:
+		mint = getMint(IUS_SESSION, THX_GUID, USERNAME, PASSWORD)
+	except Exception as e:
+		print "ERROR:", e
+		return False
+	# Get current date in proper format: mm/dd/yy
+	date = _formatDate()
+	# date = "07/03/17"
+
+	curr_day_transactions = getDayTransactions(mint, date)
+	curr_day_exp = curr_day_transactions['expenses']
+	all_exp = curr_day_transactions['all_exp']
+	print curr_day_exp
+
+	text_msg = constructText(curr_day_exp, date, all_exp)
+	print text_msg
+
 def _formatDate():
 	now = datetime.datetime.now()
 	date = now.strftime("%m/%d/%y")
 	return date
 
 init()
+# init_test()
