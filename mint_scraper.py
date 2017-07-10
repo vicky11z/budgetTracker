@@ -1,9 +1,10 @@
 import mintapi, datetime, re
-from secrets import mint_username, mint_password, mint_ius_session, mint_thx_guid, pn_to, pn_from
+from secrets import mint_username, mint_password, mint_ius_session, mint_thx_guid, pn_to, pn_from, mint_ius_session_server, mint_thx_guid_server
 from secrets import depositor, sheet_title
 import mint_google, mint_twilio
 
-IUS_SESSION, THX_GUID = mint_ius_session, mint_thx_guid
+# IUS_SESSION, THX_GUID = mint_ius_session, mint_thx_guid
+IUS_SESSION, THX_GUID = mint_ius_session_server, mint_thx_guid_server
 USERNAME, PASSWORD = mint_username, mint_password
 
 def getMint(ius_session, thx_guid, username, password):
@@ -72,10 +73,10 @@ def init():
 	curr_day_transactions = getDayTransactions(mint, date)
 	curr_day_exp = curr_day_transactions['expenses']
 	all_exp = curr_day_transactions['all_exp']
-	print curr_day_exp
+	# print curr_day_exp
 
 	text_msg = constructText(curr_day_exp, date, all_exp)
-	print text_msg
+	# print text_msg
 
 	ret = mint_twilio.sendText(pn_to, pn_from, text_msg)
 	if not ret:
@@ -108,5 +109,5 @@ def _formatDate():
 	date = now.strftime("%m/%d/%y")
 	return date
 
-# init()
-init_test()
+init()
+# init_test()
