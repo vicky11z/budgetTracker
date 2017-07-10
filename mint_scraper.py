@@ -15,9 +15,14 @@ def getMint(ius_session, thx_guid, username, password):
 # Returns {'expenses':expenses}, or {'expenses':expenses, 'income':income} if include_income == True
 def getDayTransactions(mint, date, include_income=False, depositor=depositor):
 	date_transactions = mint.get_transactions_json(start_date = date)
-	ret = {'expenses':0, 'all_exp':[]}
+	ret = {'expenses':0, 'all_exp': []}
 	if include_income: ret['income'] = 0
 	for transaction in date_transactions:
+		datetime_date = datetime.datetime.strptime(transaction['date'] + date[-2:], "%b %d%y")
+		compare_date = datetime_date.strftime("%m/%d/%y")
+		# Check if there were no transactions today
+		if compare_date != date:                continue
+
 		merchant = transaction['merchant']
 		if re.search('Postmates Temp Auth', merchant):	continue
 		amount = float(transaction['amount'].strip(u'$').replace(",", ""))
@@ -38,7 +43,6 @@ def getDayTransactions(mint, date, include_income=False, depositor=depositor):
 			ret['all_exp'] += [merchant + ':' + str(amount)]
 	return ret
 
-
 def constructText(curr_day_exp, date, all_exp):
 	money_data = mint_google.getMoneyData(curr_day_exp, sheet_title, date)
 	cum_exp, budget_left, expected_cum = money_data['cum_exp'], money_data['budget_left'], \
@@ -51,7 +55,7 @@ def constructText(curr_day_exp, date, all_exp):
 		ret_string += "You gotta slow down. Budget left: ${}.".format(budget_left)
 	else:
 		ret_string += "Budget left: ${}.".format(budget_left)
-	ret_string += "\n" + str(all_exp)
+	ret_string += str(all_exp)
 	return ret_string
 
 
@@ -63,12 +67,15 @@ def init():
 		return False
 	# Get current date in proper format: mm/dd/yy
 	date = _formatDate()
+	# date = "07/08/17"
 
 	curr_day_transactions = getDayTransactions(mint, date)
 	curr_day_exp = curr_day_transactions['expenses']
 	all_exp = curr_day_transactions['all_exp']
+	print curr_day_exp
 
 	text_msg = constructText(curr_day_exp, date, all_exp)
+	print text_msg
 
 	ret = mint_twilio.sendText(pn_to, pn_from, text_msg)
 	if not ret:
@@ -84,7 +91,7 @@ def init_test():
 		return False
 	# Get current date in proper format: mm/dd/yy
 	date = _formatDate()
-	# date = "07/03/17"
+	# date = "07/07/17"
 
 	curr_day_transactions = getDayTransactions(mint, date)
 	curr_day_exp = curr_day_transactions['expenses']
@@ -94,10 +101,12 @@ def init_test():
 	text_msg = constructText(curr_day_exp, date, all_exp)
 	print text_msg
 
+
+
 def _formatDate():
 	now = datetime.datetime.now()
 	date = now.strftime("%m/%d/%y")
 	return date
 
-init()
-# init_test()
+# init()
+init_test()
